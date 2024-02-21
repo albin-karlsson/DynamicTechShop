@@ -1,0 +1,33 @@
+﻿@page "/product/{id:int}"
+@using DynamicTechShop.Models
+@using Newtonsoft.Json
+@inject HttpClient client
+
+<h3>Product</h3>
+@if(product != null)
+{
+    <h1>@product.Name</h1>
+    <h1>@product.Description</h1>
+    <h1>@product.Price</h1>
+}
+
+@code {
+    private ProductModel? product;
+
+    [Parameter]
+    public int? Id { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        // Gör ett call till products.json för att få ett response tillbaka
+        var response = await client.GetAsync("sample-data/products.json");
+
+        // Läs responset som json
+        string jsonProducts = await response.Content.ReadAsStringAsync();
+
+        // Konvertera json till C#-modeller
+        List<ProductModel>? products = JsonConvert.DeserializeObject<List<ProductModel>>(jsonProducts);
+
+        product = products.FirstOrDefault(p => p.Id == Id);
+    }
+}

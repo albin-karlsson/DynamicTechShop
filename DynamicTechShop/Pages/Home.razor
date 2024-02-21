@@ -1,9 +1,14 @@
 ﻿@page "/"
+@using DynamicTechShop.Managers
 @using DynamicTechShop.Models
 @using Newtonsoft.Json
 @inject HttpClient client
 
 <PageTitle>Home</PageTitle>
+
+<p><strong>Items in cart:</strong><em> @CartManager.Cart.Count()</em></p>
+
+<a href="/cart">Go to cart</a>
 
 @if(products != null)
 {
@@ -11,8 +16,9 @@
     @foreach(ProductModel product in products)
     {
         <div class="col-4 product-item">
-            <h2>@product.Name</h2>
+            <a href="/product/@product.Id"><h2>@product.Name</h2></a>
             <p><strong>Price:</strong><em> $ @product.Price</em></p>
+            <button class="btn btn-outline-success" @onclick="@(() => AddToCart(product.Id))">Add to cart</button>
         </div>
     }
     </div>
@@ -22,6 +28,18 @@
 <!-- Visa alla produkter -->
 @code {
     private List<ProductModel>? products;
+
+    private void AddToCart(int? productId)
+    {
+        // Add the product to the cart
+
+        if(productId != null)
+        {
+            ProductModel productToAddToCart = products!.First(p => p.Id == productId);
+
+            CartManager.Cart.Add(productToAddToCart);
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {
