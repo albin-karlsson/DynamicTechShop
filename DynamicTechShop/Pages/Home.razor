@@ -1,0 +1,37 @@
+﻿@page "/"
+@using DynamicTechShop.Models
+@using Newtonsoft.Json
+@inject HttpClient client
+
+<PageTitle>Home</PageTitle>
+
+@if(products != null)
+{
+    <div class="row">
+    @foreach(ProductModel product in products)
+    {
+        <div class="col-4 product-item">
+            <h2>@product.Name</h2>
+            <p><strong>Price:</strong><em> $ @product.Price</em></p>
+        </div>
+    }
+    </div>
+
+}
+
+<!-- Visa alla produkter -->
+@code {
+    private List<ProductModel>? products;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Gör ett call till products.json för att få ett response tillbaka
+        var response = await client.GetAsync("sample-data/products.json");
+
+        // Läs responset som json
+        string jsonProducts = await response.Content.ReadAsStringAsync();
+
+        // Konvertera json till C#-modeller
+        products = JsonConvert.DeserializeObject<List<ProductModel>>(jsonProducts);
+    }
+}
